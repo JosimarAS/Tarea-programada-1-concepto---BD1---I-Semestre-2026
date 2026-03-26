@@ -44,20 +44,27 @@ app.get('/api/health', async (req, res) => {
 
 app.get('/api/empleados', async (req, res) => {
     try {
-        await getPool();
-
-
-
-
-        // aquí va el sp de consulta (cuando se integre)
-
-
-
-
-        res.status(501).json({
-            ok: false,
-            mensaje: 'No se ha integrado el SP de consulta.'
+        const pool = await getPool();
+ 
+        const result = await pool.request()
+            .output('outResultCode', sql.Int)           // @outResultCode OUTPUT
+            .execute('dbo.sp_ObtenerEmpleados');
+ 
+        const resultCode = result.output.outResultCode;
+ 
+        if (resultCode !== 0) {
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error interno en la base de datos.',
+                codigo: resultCode
+            });
+        }
+ 
+        res.json({
+            ok: true,
+            empleados: result.recordset
         });
+        
     } catch (err) {
         console.error(err);
         res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
@@ -75,19 +82,34 @@ app.post('/api/empleados', async (req, res) => {
     }
 
     try {
-        await getPool();
-
-
-
-
-        // aquí va el sp de inserción (también cuando se integre)
-
-
-
-
-        res.status(501).json({
-            ok: false,
-            mensaje: 'No se ha integrado el SP de inserción.'
+        const pool = await getPool();
+ 
+        const result = await pool.request()
+            .input('inNombre', sql.VarChar(128), nombre)    // @inNombre VARCHAR(128)
+            .input('inSalario', sql.Money, salario)         // @inSalario MONEY
+            .output('outResultCode', sql.Int)               // @outResultCode OUTPUT
+            .execute('dbo.sp_InsertarEmpleado');
+ 
+        const resultCode = result.output.outResultCode;
+ 
+        if (resultCode === 50002) {
+            return res.status(409).json({
+                ok: false,
+                mensaje: 'Ya existe un empleado con ese nombre.'
+            });
+        }
+ 
+        if (resultCode !== 0) {
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error interno en la base de datos.',
+                codigo: resultCode
+            });
+        }
+ 
+        res.json({
+            ok: true,
+            mensaje: 'Empleado insertado correctamente.'
         });
     } catch (err) {
         console.error(err);
