@@ -95,25 +95,25 @@ BEGIN
         , ('Valeria Rojas', 540000.00)
         , ('Diego Paredes', 300500.60)
         , ('Camila Castro', 910000.00)
-        , ('Alonso Varela', 742500.00),
-        , ('Nayeli Quesada', 618900.50),
-        , ('Damián Céspedes', 889750.25),
-        , ('Isidora Brenes', 531200.00),
-        , ('Gael Montemayor', 973400.75),
-        , ('Mireya Solís', 684150.00),
-        , ('Teodoro Valverde', 799999.99),
-        , ('Amalia Zúñiga', 455800.40),
-        , ('Leandro Carvajal', 845320.10),
-        , ('Samira Cascante', 692450.80),
-        , ('Octavio Villalobos', 1002500.00),
-        , ('Elena Madrigal', 574300.35),
-        , ('Bruno Azofeifa', 723640.60),
-        , ('Celeste Arguedas', 658210.90),
-        , ('Matías Ulate', 811470.45),
-        , ('Renata Cordero', 599875.00),
-        , ('Iván Venegas', 776320.15),
-        , ('Lía Fonseca', 483950.70),
-        , ('Tomás Chacón', 924680.55),
+        , ('Alonso Varela', 742500.00)
+        , ('Nayeli Quesada', 618900.50)
+        , ('Damián Céspedes', 889750.25)
+        , ('Isidora Brenes', 531200.00)
+        , ('Gael Montemayor', 973400.75)
+        , ('Mireya Solís', 684150.00)
+        , ('Teodoro Valverde', 799999.99)
+        , ('Amalia Zúñiga', 455800.40)
+        , ('Leandro Carvajal', 845320.10)
+        , ('Samira Cascante', 692450.80)
+        , ('Octavio Villalobos', 1002500.00)
+        , ('Elena Madrigal', 574300.35)
+        , ('Bruno Azofeifa', 723640.60)
+        , ('Celeste Arguedas', 658210.90)
+        , ('Matías Ulate', 811470.45)
+        , ('Renata Cordero', 599875.00)
+        , ('Iván Venegas', 776320.15)
+        , ('Lía Fonseca', 483950.70)
+        , ('Tomás Chacón', 924680.55)
         , ('Aurora Salazar', 708440.25)
 END 
 GO
