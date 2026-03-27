@@ -4,18 +4,21 @@
 // ============================================================
 
 const express = require('express');
-const sql = require('mssql/msnodesqlv8');
+const sql = require('mssql');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configuración de los datos de la BD
 const dbConfig = {
     server: 'localhost',
     database: 'EmpleadosDB',
+    user: 'developer_tarea1',
+    password: 'Tarea1',
     options: {
-        trustedConnection: true,
-        trustServerCertificate: true
+        trustServerCertificate: true,
+        encrypt: false
     }
 };
 
@@ -32,31 +35,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-app.get('/api/health', async (req, res) => {
-    try {
-        await getPool();
-        res.json({ ok: true, mensaje: 'Conexión base establecida.' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ ok: false, mensaje: 'Error de conexión.' });
-    }
-});
-
+// Ruta para listar empleados
 app.get('/api/empleados', async (req, res) => {
     try {
         const pool = await getPool();
  
         const result = await pool.request()
-            .output('outResultCode', sql.Int)           // @outResultCode OUTPUT
+            .output('outResultCode', sql.Int) 
             .execute('dbo.sp_ObtenerEmpleados');
  
-        const resultCode = result.output.outResultCode;
- 
-        if (resultCode !== 0) {
+        if (result.output.outResultCode !== 0) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error interno en la base de datos.',
-                codigo: resultCode
+                mensaje: 'Error interno en la base de datos al listar.'
             });
         }
  
@@ -66,11 +57,13 @@ app.get('/api/empleados', async (req, res) => {
         });
         
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
+        console.error("Error al listar", err);
+        res.status(500).json({ ok: false, mensaje: 'Error al conectar con el servidor SQL.' });
     }
 });
 
+
+// Ruta para guardar los empleados
 app.post('/api/empleados', async (req, res) => {
     const { nombre, salario } = req.body;
 
@@ -85,9 +78,9 @@ app.post('/api/empleados', async (req, res) => {
         const pool = await getPool();
  
         const result = await pool.request()
-            .input('inNombre', sql.VarChar(128), nombre)    // @inNombre VARCHAR(128)
-            .input('inSalario', sql.Money, salario)         // @inSalario MONEY
-            .output('outResultCode', sql.Int)               // @outResultCode OUTPUT
+            .input('inNombre', sql.VarChar(64), nombre)   
+            .input('inSalario', sql.Money, salario)         
+            .output('outResultCode', sql.Int)               
             .execute('dbo.sp_InsertarEmpleado');
  
         const resultCode = result.output.outResultCode;
@@ -112,11 +105,17 @@ app.post('/api/empleados', async (req, res) => {
             mensaje: 'Empleado insertado correctamente.'
         });
     } catch (err) {
-        console.error(err);
+        console.error("Error al insertar:", err);
         res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+
+// Esto de acá abajo está hecho así para que se pueda conectar desde otra máquina
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor Node encendido en http://0.0.0.0:${PORT}`);
+    console.log(`Acceso local:  http://localhost:${PORT}`);
+
+    // Este último se deja de lado por ahora
+    // console.log(`Acceso en red: http:// IP VPN :${PORT}`);
 });
