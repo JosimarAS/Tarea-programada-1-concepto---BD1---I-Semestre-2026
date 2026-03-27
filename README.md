@@ -5,7 +5,6 @@ Prueba de concepto para conectar una base de datos a un programa con funcionalid
 
 # Manual de ejecución:
 
-----------------------------------------------------------------------------------------------------------------------------------
 
 Descargar los documentos del git
 
@@ -19,43 +18,8 @@ Abrir v1_database.sql como nuevo query (con las credenciales si se quiere conect
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
+# Para las credenciales (que se pegarían al final del query sql) hay un archivo adicional (credenciales.txt) que sirve para acceder a la BD.
 
-# Estas son lass credenciales (se pegarían al final del query sql):
-USE master
-GO
-
-
--- Esto de acá es para evitar problemas de autenticación usando autenticación mixta
-EXEC xp_instance_regwrite 
-    N'HKEY_LOCAL_MACHINE', 
-    N'Software\Microsoft\MSSQLServer\MSSQLServer',
-    N'LoginMode', REG_DWORD, 2
-GO
-
-
--- Y esto crea el user para acceder a la BD
-CREATE LOGIN developer_tarea1 WITH PASSWORD = 'Tarea1'
-GO
-
-USE EmpleadosDB
-GO
-
-CREATE USER developer_tarea1 FOR LOGIN developer_tarea1
-GO
-
-EXEC sp_addrolemember 'db_owner', 'developer_tarea1'
-GO
-
-
--- Esto es para iniciar sesión a la BD como el usuario requerido
-ALTER LOGIN developer_tarea1 ENABLE
-GO
-ALTER LOGIN developer_tarea1 WITH PASSWORD = 'Tarea1'
-GO
-
-
-
--------------------------------------------------------------------------------------------------------------------------------------
 
 
 # Malabares en el SQL Server Configuration Manager y Servicios de Windows:
@@ -90,11 +54,12 @@ Entras a https://localhost:3000, y con eso debería de haber conectado correctam
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 
-# Sobre conectar a más personas a la BD, hay que seguir ese mismo procedimiento (para quien vaya a hostear la BD y el servidor)
-# Luego, se debe instalar una VPN virtual para conectar ambas personas a la misma "red"
+# Sobre conectar a más personas a la BD
 
-# En nuestro caso, usamos ZeroTier, uno de nosotros se creó una cuenta y accedió al servicio, y con el ID de la red de la persona, se conecto al otro a esa misma red (a través de aprobar y autorizar las conexiones).
+Hay que seguir ese mismo procedimiento (para quien vaya a hostear la BD y el servidor) y luego, se debe instalar una VPN virtual para conectar ambas personas a la misma "red"
 
-# Por último, la otra persona bajó del Git el html, y le cambió el URL del enlace al enlace con la IP de la red del VPN virtual. Con eso, al correr el html, la persona tenía a la BD.
+ En nuestro caso, usamos ZeroTier, uno de nosotros se creó una cuenta y accedió al servicio, y con el ID de la red de la persona, se conecto al otro a esa misma red (a través de aprobar y autorizar las conexiones).
 
-# Si por algún motivo da algún error, bastaría con tocar el Servicios de Windows y/o el SQL Server Configuration Manager en ese otro dispositivo también.
+ Por último, la otra persona bajó del Git el html, y le cambió el URL del enlace al enlace con la IP de la red del VPN virtual. Con eso, al correr el html, la persona tenía a la BD.
+
+ Si por algún motivo da algún error, bastaría con tocar el Servicios de Windows y/o el SQL Server Configuration Manager en ese otro dispositivo también.
