@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Empleados</title>
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    /* ── Vistas ── */
+    .vista { display: none; }
+    .vista.activa { display: block; }
+
+    /* ── Formulario ── */
+    .formulario {
+      background-color: white;
+      border: 1px solid black;
+      padding: 20px;
+      width: 320px;
+    }
+
+    .formulario label { display: block; margin-top: 10px; }
+    .formulario input { width: 100%; box-sizing: border-box; padding: 5px; margin-top: 4px; }
+
+    .fila-botones {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+    }
+
+    .error-campo {
+      color: red;
+      font-size: 0.85em;
+      margin-top: 2px;
+    }
+
+    /* ── Tabla ── */
+    table {
+      border-collapse: collapse;
+      width: 500px;
+      margin-top: 20px;
+      background-color: white;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th { background-color: lightgray; }
+
+    button {
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Lista de empleados ===== -->
+  <div id="vista-lista" class="vista activa">
+    <h1>Lista de Empleados</h1>
+
+    <button onclick="mostrarInsertar()">Insertar Empleado</button>
+
+    <table id="tabla_empleados">
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Salario</th>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== Insertar empleado ===== -->
+  <div id="vista-insertar" class="vista">
+    <h1>Insertar Empleado</h1>
+
+    <div class="formulario">
+      <label>Nombre:</label>
+      <input type="text" id="nombre_input" placeholder="Ej: Juan Pérez">
+      <div class="error-campo" id="error_nombre"></div>
+
+      <label>Salario:</label>
+      <input type="text" id="salario_input" placeholder="Ej: 850000.00">
+      <div class="error-campo" id="error_salario"></div>
+
+      <div class="fila-botones">
+        <button onclick="guardarEmpleado()">Insertar</button>
+        <button onclick="mostrarLista()">Regresar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Configuración ──
+    
+    // Esto hay que cambiarlo a la hora de conectarse la otra persona (cuidado se nos olvida)
+    var urlServidor = "http://localhost:3000/api/empleados";
+
+    // ── Navegación entre las vistas ──
+    function mostrarLista() {
+      document.getElementById("vista-insertar").classList.remove("activa");
+      document.getElementById("vista-lista").classList.add("activa");
+      cargarEmpleados();
+    }
+
+    function mostrarInsertar() {
+      document.getElementById("vista-lista").classList.remove("activa");
+      document.getElementById("vista-insertar").classList.add("activa");
+      document.getElementById("nombre_input").value = "";
+      document.getElementById("salario_input").value = "";
+      document.getElementById("error_nombre").textContent = "";
+      document.getElementById("error_salario").textContent = "";
+    }
+
+    // ── Cargar la lista de empleados ──
+    function cargarEmpleados() {
+      fetch(urlServidor)
+        .then(function(respuesta) {
+          return respuesta.json();
+        })
+        .then(function(datos) {
+          if (datos.ok) {
+            var tabla = document.getElementById("tabla_empleados");
+            tabla.innerHTML = "<tr><th>ID</th><th>Nombre</th><th>Salario</th></tr>";
+
+            for (var i = 0; i < datos.empleados.length; i++) {
+              var emp = datos.empleados[i];
+              var filaHtml = "<tr>" +
+                               "<td>" + emp.id + "</td>" +
+                               "<td>" + emp.Nombre + "</td>" +
+                               "<td>₡" + emp.Salario.toLocaleString('es-CR') + "</td>" +
+                             "</tr>";
+              tabla.innerHTML = tabla.innerHTML + filaHtml;
+            }
+          } else {
+            alert("Error al cargar datos: " + datos.mensaje);
+          }
+        })
+        .catch(function(error) {
+          alert("No se pudo conectar con el servidor, está Node corriendo?");
+        });
+    }
+
+    // ── Validaciones en capa de presentación ──
+    function validarFormulario() {
+      var nombre  = document.getElementById("nombre_input").value.trim();
+      var salario = document.getElementById("salario_input").value.trim();
+      var valido  = true;
+
+
+
+      // Limpiar errores anteriores
+      document.getElementById("error_nombre").textContent  = "";
+      document.getElementById("error_salario").textContent = "";
+
+
+
+      // Validar el nombre
+      if (nombre === "") {
+        document.getElementById("error_nombre").textContent = "El nombre no puede estar vacío";
+        valido = false;
+      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-]+$/.test(nombre)) {
+        document.getElementById("error_nombre").textContent = "El nombre solo puede contener letras y guiones";
+        valido = false;
+      }
+
+      // Validar el salario
+      if (salario === "") {
+        document.getElementById("error_salario").textContent = "El salario no puede estar vacío";
+        valido = false;
+      } else if (!/^\d+(\.\d{1,2})?$/.test(salario)) {
+        document.getElementById("error_salario").textContent = "Por favor, digite un salario válido (ej: 850000.00).";
+        valido = false;
+      }
+
+      return valido;
+    }
+
+
+
+    // ── Guardar empleado ──
+    function guardarEmpleado() {
+      if (!validarFormulario()) {
+        return;
+      }
+
+      var nombre  = document.getElementById("nombre_input").value.trim();
+      var salario = parseFloat(document.getElementById("salario_input").value.trim());
+
+      var datosEnviar = {
+        nombre:  nombre,
+        salario: salario
+      };
+
+      fetch(urlServidor, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosEnviar)
+      })
+      .then(function(respuesta) {
+        return respuesta.json();
+      })
+      .then(function(datos) {
+        if (datos.ok) {
+          alert("El empleado fue insertado de manera exitosa");
+          mostrarLista();
+        } else {
+          // El SP devolvió 50002: nombre duplicado
+          if (datos.mensaje && datos.mensaje.includes("ya existe")) {
+            alert("El nombre del empleado ya existe");
+          } else {
+            alert("Error: " + datos.mensaje);
+          }
+        }
+      })
+      .catch(function(error) {
+        alert("No se pudo conectar con el servidor para guardar los datos");
+      });
+    }
+
+
+    // ── Cargar al iniciar ──
+    cargarEmpleados();
+  </script>
+
+</body>
+</html>
