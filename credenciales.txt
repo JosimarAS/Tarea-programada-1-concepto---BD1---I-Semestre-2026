@@ -1,0 +1,35 @@
+Pegar esto al final del query de v1_database.sql
+
+
+
+USE master
+GO
+
+
+-- Esto de acá es para evitar problemas de autenticación usando autenticación mixta
+EXEC xp_instance_regwrite 
+    N'HKEY_LOCAL_MACHINE', 
+    N'Software\Microsoft\MSSQLServer\MSSQLServer',
+    N'LoginMode', REG_DWORD, 2
+GO
+
+
+-- Y esto crea el user para acceder a la BD
+CREATE LOGIN developer_tarea1 WITH PASSWORD = 'Tarea1'
+GO
+
+USE EmpleadosDB
+GO
+
+CREATE USER developer_tarea1 FOR LOGIN developer_tarea1
+GO
+
+EXEC sp_addrolemember 'db_owner', 'developer_tarea1'
+GO
+
+
+-- Esto es para iniciar sesión a la BD como el usuario requerido
+ALTER LOGIN developer_tarea1 ENABLE
+GO
+ALTER LOGIN developer_tarea1 WITH PASSWORD = 'Tarea1'
+GO
