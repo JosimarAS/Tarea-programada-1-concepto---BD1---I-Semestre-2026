@@ -33,7 +33,7 @@ BEGIN
     CREATE TABLE dbo.Empleado
     (
         id      INT          IDENTITY(1, 1) PRIMARY KEY
-        , Nombre  VARCHAR(128) NOT NULL
+        , Nombre  VARCHAR(64) NOT NULL
         , Salario MONEY        NOT NULL
     )
 END
@@ -80,6 +80,21 @@ BEGIN
         , ('Beatriz Mora', 710000.00) 
         , ('Carlos Jimenez', 540000.00) 
         , ('Carmen Sanchez', 480000.00) 
+        , ('Ana López', 350000.00)
+        , ('Carlos Méndez', 720000.50)
+        , ('María Fernández', 480000.00)
+        , ('José Rodríguez', 999999.00)
+        , ('Luisa Herrera', 275300.75)
+        , ('Pedro Castillo', 610000.00)
+        , ('Sofía Ramírez', 890450.25)
+        , ('Jorge Vargas', 150000.00)
+        , ('Elena Morales', 430200.10)
+        , ('Ricardo Jiménez', 805999.99)
+        , ('Paula Navarro', 120000.00),
+        , ('Andrés Solano', 670800.80),
+        , ('Valeria Rojas', 540000.00),
+        , ('Diego Paredes', 300500.60),
+        , ('Camila Castro', 910000.00)
 END 
 GO
 
